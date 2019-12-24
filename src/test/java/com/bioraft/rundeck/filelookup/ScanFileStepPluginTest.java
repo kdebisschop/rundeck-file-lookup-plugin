@@ -18,8 +18,8 @@ package com.bioraft.rundeck.filelookup;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.matches;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,94 +53,95 @@ public class ScanFileStepPluginTest {
 
 	ScanFileStepPlugin plugin;
 
-    @Mock
-    PluginStepContext context;
+	@Mock
+	PluginStepContext context;
 
-    @Mock
-    SharedOutputContext sharedOutputContext;
+	@Mock
+	SharedOutputContext sharedOutputContext;
 
-    @Mock
-    DataContext dataContext;
+	@Mock
+	DataContext dataContext;
 
-    @Captor
-    ArgumentCaptor<String> nameCaptor;
+	@Captor
+	ArgumentCaptor<String> nameCaptor;
 
-    @Captor
-    ArgumentCaptor<String> valueCaptor;
+	@Captor
+	ArgumentCaptor<String> valueCaptor;
 
-    Map<String, Object> configuration;
-    
-    @Before
-    public void setUp() {
-        this.plugin = new ScanFileStepPlugin();
+	Map<String, Object> configuration;
+
+	@Before
+	public void setUp() {
+		this.plugin = new ScanFileStepPlugin();
 		configuration = Stream.of(new String[][] { { "path", "testData/test.yaml" }, { "group", "example" },
-			{ "name", "key" }, { "regex", "single" }, })
-			.collect(Collectors.toMap(data -> data[0], data -> data[1]));
-    }
+				{ "name", "key" }, { "regex", "single" }, })
+				.collect(Collectors.toMap(data -> data[0], data -> data[1]));
+	}
 
-    @Test(expected=StepException.class)
-    public void noFileThrowsException() throws StepException {
+	@Test(expected = StepException.class)
+	public void noFileThrowsException() throws StepException {
 		configuration.put("path", "nosuchfile");
-        when(context.getOutputContext()).thenReturn(sharedOutputContext);
-        this.plugin.executeStep(context, configuration);
-    }
+		when(context.getOutputContext()).thenReturn(sharedOutputContext);
+		this.plugin.executeStep(context, configuration);
+	}
 
-    @Test
-    public void canRunWithoutMatch() throws StepException {
+	@Test
+	public void canRunWithoutMatch() throws StepException {
 		configuration.put("regex", "com[.]example[.]label3: (.*)");
-        when(context.getOutputContext()).thenReturn(sharedOutputContext);
+		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 
-        this.plugin.executeStep(context, configuration);
-        verify(context).getOutputContext();
-        verify(sharedOutputContext, never()).addOutput(anyString(), anyString(), anyString());
-    }
+		this.plugin.executeStep(context, configuration);
+		verify(context, never()).getOutputContext();
+		verify(sharedOutputContext, never()).addOutput(anyString(), anyString(), anyString());
+	}
 
-    @Test
-    public void canFindSingleCapture() throws StepException {
+	@Test
+	public void canFindSingleCapture() throws StepException {
 		configuration.put("regex", "com[.]example[.]label2: (.*)");
-        when(context.getOutputContext()).thenReturn(sharedOutputContext);
+		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 
-        this.plugin.executeStep(context, configuration);
-        verify(context).getOutputContext();
-        verify(sharedOutputContext).addOutput(matches("^example$"), nameCaptor.capture(), valueCaptor.capture());
+		this.plugin.executeStep(context, configuration);
+		verify(context).getOutputContext();
+		verify(sharedOutputContext).addOutput(matches("^example$"), nameCaptor.capture(), valueCaptor.capture());
 
-        List<String> names = nameCaptor.getAllValues();
-        List<String> values = valueCaptor.getAllValues();
-        Map<String, String> found = mergeLists(names, values);
+		List<String> names = nameCaptor.getAllValues();
+		List<String> values = valueCaptor.getAllValues();
+		Map<String, String> found = mergeLists(names, values);
 
-        // Returns first match.
-        assertEquals("another", found.get("key"));
-    }
+		// Returns first match.
+		assertEquals("another", found.get("key"));
+	}
 
-    @Test
-    public void canFindMultipleCapture() throws StepException {
+	@Test
+	public void canFindMultipleCapture() throws StepException {
 		configuration.put("regex", "com[.]example[.](label1|label2): (.*)");
-        when(context.getOutputContext()).thenReturn(sharedOutputContext);
+		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 
-        this.plugin.executeStep(context, configuration);
-        verify(context).getOutputContext();
-        verify(sharedOutputContext, atLeastOnce()).addOutput(matches("^example$"), nameCaptor.capture(), valueCaptor.capture());
+		this.plugin.executeStep(context, configuration);
+		verify(context, times(2)).getOutputContext();
+		verify(sharedOutputContext, times(2)).addOutput(matches("^example$"), nameCaptor.capture(),
+				valueCaptor.capture());
 
-        List<String> names = nameCaptor.getAllValues();
-        List<String> values = valueCaptor.getAllValues();
-        Map<String, String> found = mergeLists(names, values);
+		List<String> names = nameCaptor.getAllValues();
+		List<String> values = valueCaptor.getAllValues();
+		Map<String, String> found = mergeLists(names, values);
 
-        assertEquals("firstValue", found.get("label1"));
-        // Returns first match.
-        assertEquals("another", found.get("label2"));
-    }
-    
-    private Map<String, String> mergeLists (List<String> keys, List<String> values) {
-        if (keys.size() != values.size()) {
-            throw new IllegalArgumentException ("Cannot combine lists with dissimilar sizes");
-        }
-        
-    	Map<String, String> map = new HashMap<>();
-    	for (int i = 0; i < keys.size(); i++) {
-            map.put(keys.get(i), values.get(i));
-        }
-    	
-    	return map;
-    }
+		assertEquals("firstValue", found.get("label1"));
+		// Returns first match.
+		assertEquals("another", found.get("label2"));
+	}
+
+	private Map<String, String> mergeLists(List<String> keys, List<String> values) {
+		if (keys.size() != values.size()) {
+			throw new IllegalArgumentException("Cannot combine lists with dissimilar sizes");
+		}
+
+		Map<String, String> map = new HashMap<>();
+		for (int i = 0; i < keys.size(); i++) {
+			map.put(keys.get(i), values.get(i));
+		}
+
+		return map;
+	}
 
 }

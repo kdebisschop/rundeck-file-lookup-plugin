@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.dtolabs.rundeck.core.execution.workflow.SharedOutputContext;
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException;
 import com.dtolabs.rundeck.core.plugins.Plugin;
 import com.dtolabs.rundeck.plugins.ServiceNameConstants;
@@ -34,14 +33,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Workflow Step Plug-in to find value of first matching field name in JSON file.
+ * Workflow Step Plug-in to find value of first matching field name in JSON
+ * file.
  * 
  * Scans the specified file for the indicated field name and returns the value
  * of the first matching value node. Search through non-value nodes is performed
- * in a depth-first manner, so the match found is the first value match seen when
- * when scanning down the file and earlier matches will mask matches that are
- * less deep in the tree but later in the file. Breadth-first search could be
- * implemented as an option but is not done here.
+ * in a depth-first manner, so the match found is the first value match seen
+ * when when scanning down the file and earlier matches will mask matches that
+ * are less deep in the tree but later in the file. Breadth-first search could
+ * be implemented as an option but is not done here.
  *
  * @author Karl DeBisschop <kdebisschop@gmail.com>
  * @since 2019-12-11
@@ -63,12 +63,17 @@ public class JsonFindValueStepPlugin implements StepPlugin {
 	@PluginProperty(title = "Field Name", description = "Field name to lookup in JSON", required = true)
 	private String fieldName;
 
+	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = false)
+	private boolean elevateToGlobal;
+
 	@Override
 	public void executeStep(PluginStepContext context, Map<String, Object> configuration) throws StepException {
 		String path = configuration.getOrDefault("path", this.path).toString();
 		String group = configuration.getOrDefault("group", this.group).toString();
 		String name = configuration.getOrDefault("name", this.name).toString();
 		String fieldName = configuration.getOrDefault("fieldName", this.fieldName).toString();
+		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
+				.equals("true");
 
 		try {
 			FileReader reader = new FileReader(path);
@@ -76,8 +81,7 @@ public class JsonFindValueStepPlugin implements StepPlugin {
 			JsonNode rootNode = objectMapper.readTree(reader);
 			String value = this.searchTree(rootNode, fieldName);
 			if (value != null) {
-				SharedOutputContext sharedOutputContext = context.getOutputContext();
-				sharedOutputContext.addOutput(group, name, value);				
+				FileLookupUtils.addOutput(context, group, name, value, elevateToGlobal);
 			}
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;

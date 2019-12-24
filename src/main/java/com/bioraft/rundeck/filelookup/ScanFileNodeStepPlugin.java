@@ -26,7 +26,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.dtolabs.rundeck.core.common.INodeEntry;
-import com.dtolabs.rundeck.core.execution.workflow.SharedOutputContext;
 import com.dtolabs.rundeck.core.execution.workflow.steps.node.NodeStepException;
 import com.dtolabs.rundeck.core.plugins.Plugin;
 import com.dtolabs.rundeck.plugins.ServiceNameConstants;
@@ -68,6 +67,9 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 	@PluginProperty(title = "Pattern", description = "Regular expression to find, with one or two capture fields", required = true)
 	private String regex;
 
+	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = false)
+	private boolean elevateToGlobal;
+
 	@Override
 	public void executeNodeStep(PluginStepContext context, Map<String, Object> configuration, INodeEntry node)
 			throws NodeStepException {
@@ -75,8 +77,9 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 		String group = configuration.getOrDefault("group", this.group).toString();
 		String name = configuration.getOrDefault("name", this.name).toString();
 		String regex = configuration.getOrDefault("regex", this.regex).toString();
+		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
+				.equals("true");
 
-		SharedOutputContext sharedOutputContext = context.getOutputContext();
 		Pattern pattern = Pattern.compile(regex);
 		MatchResult match;
 		Matcher matcher;
@@ -95,12 +98,13 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 				if (matcher.find()) {
 					match = matcher.toMatchResult();
 					if (match.groupCount() == 1) {
-						sharedOutputContext.addOutput(group, name, match.group(1));
+						FileLookupUtils.addOutput(context, group, name, match.group(1), elevateToGlobal);
 						return;
 					} else if (match.groupCount() == 2) {
 						// Take first value and do not overwrite, even though scanning proceeds
 						// through the rest of the file to find other matches to the pattern.
 						if (map.get(match.group(1)) == null) {
+							FileLookupUtils.addOutput(context, group, match.group(1), match.group(2), elevateToGlobal);
 							map.put(match.group(1), match.group(2));
 						}
 					}
@@ -116,8 +120,8 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 			throw new NodeStepException(msg, e, FileLookupFailureReason.FileNotReadable, nodeName);
 		}
 
-		for (Map.Entry<String, String> element : map.entrySet()) {
-			sharedOutputContext.addOutput(group, element.getKey(), element.getValue());
-		}	
+//		for (Map.Entry<String, String> element : map.entrySet()) {
+//			FileLookupUtils.addOutput(context, group, element.getKey(), element.getValue(), elevateToGlobal);
+//		}
 	}
 }

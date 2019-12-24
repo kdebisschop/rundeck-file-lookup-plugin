@@ -18,8 +18,8 @@ package com.bioraft.rundeck.filelookup;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.matches;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -71,15 +71,15 @@ public class ScanFileNodeStepPluginTest {
 
 	@Captor
 	ArgumentCaptor<String> valueCaptor;
-	
+
 	Map<String, Object> configuration;
 
 	@Before
 	public void setUp() {
 		this.plugin = new ScanFileNodeStepPlugin();
 		configuration = Stream.of(new String[][] { { "path", "testData/test.yaml" }, { "group", "example" },
-			{ "name", "key" }, { "regex", "single" }, })
-			.collect(Collectors.toMap(data -> data[0], data -> data[1]));
+				{ "name", "key" }, { "regex", "single" }, })
+				.collect(Collectors.toMap(data -> data[0], data -> data[1]));
 	}
 
 	@Test(expected = StepException.class)
@@ -95,7 +95,7 @@ public class ScanFileNodeStepPluginTest {
 		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 		this.plugin.executeNodeStep(context, configuration, entry);
 
-		verify(context).getOutputContext();
+		verify(context, never()).getOutputContext();
 		verify(sharedOutputContext, never()).addOutput(anyString(), anyString(), anyString());
 	}
 
@@ -122,8 +122,8 @@ public class ScanFileNodeStepPluginTest {
 		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 		this.plugin.executeNodeStep(context, configuration, entry);
 
-		verify(context).getOutputContext();
-		verify(sharedOutputContext, atLeastOnce()).addOutput(matches("^example$"), nameCaptor.capture(),
+		verify(context, times(2)).getOutputContext();
+		verify(sharedOutputContext, times(2)).addOutput(matches("^example$"), nameCaptor.capture(),
 				valueCaptor.capture());
 
 		List<String> names = nameCaptor.getAllValues();

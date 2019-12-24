@@ -15,17 +15,16 @@
  */
 package com.bioraft.rundeck.filelookup;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 
-import com.dtolabs.rundeck.core.execution.workflow.SharedOutputContext;
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException;
 import com.dtolabs.rundeck.core.plugins.Plugin;
 import com.dtolabs.rundeck.plugins.ServiceNameConstants;
@@ -67,14 +66,18 @@ public class ScanFileStepPlugin implements StepPlugin {
 	@PluginProperty(title = "Pattern", description = "Regular expression to find, with one or two capture fields", required = true)
 	private String regex;
 
+	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = false)
+	private boolean elevateToGlobal;
+
 	@Override
 	public void executeStep(PluginStepContext context, Map<String, Object> configuration) throws StepException {
 		String path = configuration.getOrDefault("path", this.path).toString();
 		String group = configuration.getOrDefault("group", this.group).toString();
 		String name = configuration.getOrDefault("name", this.name).toString();
 		String regex = configuration.getOrDefault("regex", this.regex).toString();
+		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
+				.equals("true");
 
-		SharedOutputContext sharedOutputContext = context.getOutputContext();
 		Pattern pattern = Pattern.compile(regex);
 		MatchResult match;
 		Matcher matcher;
@@ -93,7 +96,7 @@ public class ScanFileStepPlugin implements StepPlugin {
 				if (matcher.find()) {
 					match = matcher.toMatchResult();
 					if (match.groupCount() == 1) {
-						sharedOutputContext.addOutput(group, name, match.group(1));
+						FileLookupUtils.addOutput(context, group, name, match.group(1), elevateToGlobal);
 						return;
 					} else if (match.groupCount() == 2) {
 						if (map.get(match.group(1)) == null) {
@@ -110,7 +113,7 @@ public class ScanFileStepPlugin implements StepPlugin {
 			throw new StepException(msg, e, FileLookupFailureReason.FileNotReadable);
 		}
 		for (Map.Entry<String, String> element : map.entrySet()) {
-			sharedOutputContext.addOutput(group, element.getKey(), element.getValue());
+			FileLookupUtils.addOutput(context, group, element.getKey(), element.getValue(), elevateToGlobal);
 		}
 	}
 }

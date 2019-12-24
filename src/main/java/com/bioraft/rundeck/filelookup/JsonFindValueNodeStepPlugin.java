@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.dtolabs.rundeck.core.common.INodeEntry;
-import com.dtolabs.rundeck.core.execution.workflow.SharedOutputContext;
 import com.dtolabs.rundeck.core.execution.workflow.steps.node.NodeStepException;
 import com.dtolabs.rundeck.core.plugins.Plugin;
 import com.dtolabs.rundeck.plugins.ServiceNameConstants;
@@ -64,6 +63,9 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 	@PluginProperty(title = "Field Name", description = "Field name to lookup in JSON", required = true)
 	private String fieldName;
 
+	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = false)
+	private boolean elevateToGlobal;
+
 	@Override
 	public void executeNodeStep(final PluginStepContext context, final Map<String, Object> configuration,
 			final INodeEntry node) throws NodeStepException {
@@ -71,6 +73,8 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 		String group = configuration.getOrDefault("group", this.group).toString();
 		String name = configuration.getOrDefault("name", this.name).toString();
 		String fieldName = configuration.getOrDefault("fieldName", this.fieldName).toString();
+		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
+				.equals("true");
 
 		try {
 			FileReader reader = new FileReader(path);
@@ -78,8 +82,7 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 			JsonNode rootNode = objectMapper.readTree(reader);
 			String value = this.searchTree(rootNode, fieldName);
 			if (value != null) {
-				SharedOutputContext sharedOutputContext = context.getOutputContext();
-				sharedOutputContext.addOutput(group, name, value);
+				FileLookupUtils.addOutput(context, group, name, value, elevateToGlobal);
 			}
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
