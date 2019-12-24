@@ -1,0 +1,28 @@
+{
+	"single": "v1",
+	"lastName": "Smith",
+	"address": {
+		"streetAddress": "21 2nd Street",
+		"city": "New York",
+		"state": "NY",
+		"postalCode": 10021,
+		"address": "school"
+	},
+	"number": {
+		"one": 1,
+		"two": 2
+	},
+	"age": 25.2,
+	"phoneNumbers": [
+		{
+			"address": "home",
+			"number": "212 555-1234"
+		},
+		{
+			"address": "work",
+			"number": "212 555-1234"
+		}
+	],
+	"firstName": "John",
+	"deceased": true
+}

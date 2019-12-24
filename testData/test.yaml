@@ -1,0 +1,28 @@
+version: '3'
+services:
+  mysql:
+    image: percona:5.7
+    networks:
+      - back
+      - front
+    ports:
+      - 127.0.0.1:3306:3306
+    labels:
+      com.example.label1: firstValue
+      com.example.label2: another
+
+  web:
+    image: image:latest
+    networks:
+      - front
+      - back
+    ports:
+      - 80:80
+      - 443:443
+    labels:
+      com.example.label1: secondValue
+      com.example.label2: notAnother
+
+networks:
+  front: {}
+  back: {}
