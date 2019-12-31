@@ -37,7 +37,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.dtolabs.rundeck.core.data.DataContext;
 import com.dtolabs.rundeck.core.execution.workflow.SharedOutputContext;
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
@@ -58,9 +57,6 @@ public class ScanFileStepPluginTest {
 
 	@Mock
 	SharedOutputContext sharedOutputContext;
-
-	@Mock
-	DataContext dataContext;
 
 	@Captor
 	ArgumentCaptor<String> nameCaptor;

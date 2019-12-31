@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 BioRAFT, Inc. (http://bioraft.com)
+ * Copyright 2019 BioRAFT, Inc. (https://bioraft.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 		Matcher matcher;
 		String line;
 
-		if (name == null || name == "") {
+		if (name == null || name.equals("")) {
 			name = "data";
 		}
 
@@ -119,9 +119,5 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 			String nodeName = node.getNodename();
 			throw new NodeStepException(msg, e, FileLookupFailureReason.FileNotReadable, nodeName);
 		}
-
-//		for (Map.Entry<String, String> element : map.entrySet()) {
-//			FileLookupUtils.addOutput(context, group, element.getKey(), element.getValue(), elevateToGlobal);
-//		}
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 BioRAFT, Inc. (http://bioraft.com)
+ * Copyright 2019 BioRAFT, Inc. (https://bioraft.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,6 @@ public class JsonFindValueStepPlugin implements StepPlugin {
 			String msg = "Could not read file " + path;
 			throw new StepException(msg, e, FileLookupFailureReason.FileNotReadable);
 		}
-		return;
 	}
 
 	/**

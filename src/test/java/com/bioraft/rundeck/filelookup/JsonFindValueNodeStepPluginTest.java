@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 BioRAFT, Inc. (http://bioraft.com)
+ * Copyright 2019 BioRAFT, Inc. (https://bioraft.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.dtolabs.rundeck.core.common.INodeEntry;
-import com.dtolabs.rundeck.core.data.DataContext;
 import com.dtolabs.rundeck.core.execution.workflow.SharedOutputContext;
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
@@ -59,9 +58,6 @@ public class JsonFindValueNodeStepPluginTest {
 
 	@Mock
 	SharedOutputContext sharedOutputContext;
-
-	@Mock
-	DataContext dataContext;
 
 	@Captor
 	ArgumentCaptor<String> groupCaptor;
@@ -103,7 +99,7 @@ public class JsonFindValueNodeStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("v1", values.get(i++));
+		assertEquals("v1", values.get(i));
 	}
 
 	@Test
@@ -121,7 +117,7 @@ public class JsonFindValueNodeStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("school", values.get(i++));
+		assertEquals("school", values.get(i));
 	}
 
 	@Test
@@ -139,7 +135,7 @@ public class JsonFindValueNodeStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("212 555-1234", values.get(i++));
+		assertEquals("212 555-1234", values.get(i));
 	}
 
 	@Test
@@ -157,7 +153,7 @@ public class JsonFindValueNodeStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("10021", values.get(i++));
+		assertEquals("10021", values.get(i));
 	}
 
 	@Test
@@ -175,7 +171,7 @@ public class JsonFindValueNodeStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("25.2", values.get(i++));
+		assertEquals("25.2", values.get(i));
 	}
 
 	@Test
@@ -193,7 +189,7 @@ public class JsonFindValueNodeStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("true", values.get(i++));
+		assertEquals("true", values.get(i));
 	}
 
 	@Test

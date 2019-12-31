@@ -34,7 +34,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.dtolabs.rundeck.core.data.DataContext;
 import com.dtolabs.rundeck.core.execution.workflow.SharedOutputContext;
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
@@ -55,9 +54,6 @@ public class JsonFindValueStepPluginTest {
 
 	@Mock
 	SharedOutputContext sharedOutputContext;
-
-	@Mock
-	DataContext dataContext;
 
 	@Captor
 	ArgumentCaptor<String> groupCaptor;
@@ -99,7 +95,7 @@ public class JsonFindValueStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("v1", values.get(i++));
+		assertEquals("v1", values.get(i));
 	}
 
 	@Test
@@ -117,7 +113,7 @@ public class JsonFindValueStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("school", values.get(i++));
+		assertEquals("school", values.get(i));
 	}
 
 	@Test
@@ -135,7 +131,7 @@ public class JsonFindValueStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("212 555-1234", values.get(i++));
+		assertEquals("212 555-1234", values.get(i));
 	}
 
 	@Test
@@ -153,7 +149,7 @@ public class JsonFindValueStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("10021", values.get(i++));
+		assertEquals("10021", values.get(i));
 	}
 
 	@Test
@@ -171,7 +167,7 @@ public class JsonFindValueStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("25.2", values.get(i++));
+		assertEquals("25.2", values.get(i));
 	}
 
 	@Test
@@ -189,7 +185,7 @@ public class JsonFindValueStepPluginTest {
 		int i = 0;
 		assertEquals("raft", groups.get(i));
 		assertEquals("key", names.get(i));
-		assertEquals("true", values.get(i++));
+		assertEquals("true", values.get(i));
 	}
 
 	@Test
