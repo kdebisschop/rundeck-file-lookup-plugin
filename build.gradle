@@ -10,9 +10,9 @@ apply plugin: 'idea'
 sourceCompatibility = 1.8
 defaultTasks 'clean','build'
 ext.rundeckPluginVersion = '1.2'
-ext.pluginClassNames='com.bioraft.rundeck.filelookup.JsonFindKeyStepPlugin,' +
+ext.pluginClassNames='com.bioraft.rundeck.filelookup.JsonFindValueStepPlugin,' +
 'com.bioraft.rundeck.filelookup.ScanFileStepPlugin,' +
-'com.bioraft.rundeck.filelookup.JsonFindKeyNodeStepPlugin,' +
+'com.bioraft.rundeck.filelookup.JsonFindValueNodeStepPlugin,' +
 'com.bioraft.rundeck.filelookup.ScanFileNodeStepPlugin'
 ext.pluginName = 'RunDeck File Lookup Plugin'
 ext.pluginDescription = 'Find step values within files'
