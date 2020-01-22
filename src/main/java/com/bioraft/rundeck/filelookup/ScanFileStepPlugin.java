@@ -67,22 +67,25 @@ public class ScanFileStepPlugin implements StepPlugin {
 	@PluginProperty(title = "Pattern", description = "Regular expression to find, with one or two capture fields", required = true)
 	private String regex;
 
-	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)")
+	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = true, defaultValue = "false")
 	private boolean elevateToGlobal;
 
 	@Override
 	public void executeStep(PluginStepContext context, Map<String, Object> configuration) throws StepException {
 		path = configuration.getOrDefault("path", this.path).toString();
 		group = configuration.getOrDefault("group", this.group).toString();
+		regex = configuration.getOrDefault("regex", this.regex).toString();
+		if (configuration.containsKey("elevateToGlobal")) {
+			elevateToGlobal = configuration.get("elevateToGlobal").toString().equals("true");
+		}
+
+		// Setting name is different because it is not a required field.
 		if (name == null || name.length() == 0) {
 			name = configuration.getOrDefault("name", "").toString();
 			if (name == null || name.length() == 0) {
 				name = "data";
 			}
 		}
-		regex = configuration.getOrDefault("regex", this.regex).toString();
-		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
-				.equals("true");
 
 		Pattern pattern = Pattern.compile(regex);
 
