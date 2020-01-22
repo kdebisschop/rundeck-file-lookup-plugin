@@ -16,8 +16,7 @@
 package com.bioraft.rundeck.filelookup;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.matches;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -29,6 +28,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.dtolabs.rundeck.plugins.PluginLogger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,6 +58,9 @@ public class ScanFileStepPluginTest {
 	@Mock
 	SharedOutputContext sharedOutputContext;
 
+	@Mock
+	PluginLogger logger;
+
 	@Captor
 	ArgumentCaptor<String> nameCaptor;
 
@@ -72,6 +75,7 @@ public class ScanFileStepPluginTest {
 		configuration = Stream.of(new String[][] { { "path", "testData/test.yaml" }, { "group", "example" },
 				{ "name", "key" }, { "regex", "single" }, })
 				.collect(Collectors.toMap(data -> data[0], data -> data[1]));
+		when(context.getLogger()).thenReturn(logger);
 	}
 
 	@Test(expected = StepException.class)
@@ -83,7 +87,7 @@ public class ScanFileStepPluginTest {
 
 	@Test
 	public void canRunWithoutMatch() throws StepException {
-		configuration.put("regex", "com[.]example[.]label3: (.*)");
+		configuration.put("regex", "^\\s+com[.]example[.]label3: (.*)");
 		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 
 		this.plugin.executeStep(context, configuration);
@@ -110,7 +114,7 @@ public class ScanFileStepPluginTest {
 
 	@Test
 	public void canFindMultipleCapture() throws StepException {
-		configuration.put("regex", "com[.]example[.](label1|label2): (.*)");
+		configuration.put("regex", "^\\s+com[.]example[.](label1|label2): (.*)");
 		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 
 		this.plugin.executeStep(context, configuration);

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.dtolabs.rundeck.plugins.PluginLogger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,6 +63,9 @@ public class ScanFileNodeStepPluginTest {
 	@Mock
 	SharedOutputContext sharedOutputContext;
 
+	@Mock
+	PluginLogger logger;
+
 	@Captor
 	ArgumentCaptor<String> nameCaptor;
 
@@ -76,6 +80,8 @@ public class ScanFileNodeStepPluginTest {
 		configuration = Stream.of(new String[][] { { "path", "testData/test.yaml" }, { "group", "example" },
 				{ "name", "key" }, { "regex", "single" }, })
 				.collect(Collectors.toMap(data -> data[0], data -> data[1]));
+		when(context.getLogger()).thenReturn(logger);
+
 	}
 
 	@Test(expected = StepException.class)
