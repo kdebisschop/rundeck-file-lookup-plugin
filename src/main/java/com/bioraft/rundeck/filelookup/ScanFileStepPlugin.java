@@ -33,6 +33,10 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.dtolabs.rundeck.plugins.step.StepPlugin;
 
+import static com.dtolabs.rundeck.core.Constants.ERR_LEVEL;
+import static com.dtolabs.rundeck.core.Constants.INFO_LEVEL;
+import static com.dtolabs.rundeck.core.Constants.DEBUG_LEVEL;
+
 /**
  * Workflow Step Plug-in to find value of first matching text file.
  * 
@@ -99,7 +103,8 @@ public class ScanFileStepPlugin implements StepPlugin {
 						FileLookupUtils.addOutput(context, group, name, match.group(1), elevateToGlobal);
 						return;
 					} else if (match.groupCount() == 2) {
-						if (map.get(match.group(1)) == null) {
+						context.getLogger().log(DEBUG_LEVEL, "Found '" + match.group(1) + "' : '" + match.group(2) + "'");
+						if (!map.containsKey(match.group(1))) {
 							FileLookupUtils.addOutput(context, group, match.group(1), match.group(2), elevateToGlobal);
 							map.put(match.group(1), match.group(2));
 						}

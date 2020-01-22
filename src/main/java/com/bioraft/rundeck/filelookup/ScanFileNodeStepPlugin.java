@@ -34,6 +34,10 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.step.NodeStepPlugin;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 
+import static com.dtolabs.rundeck.core.Constants.ERR_LEVEL;
+import static com.dtolabs.rundeck.core.Constants.INFO_LEVEL;
+import static com.dtolabs.rundeck.core.Constants.DEBUG_LEVEL;
+
 /**
  * Workflow Step Plug-in to find value of first matching text file.
  * 
@@ -101,9 +105,10 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 						FileLookupUtils.addOutput(context, group, name, match.group(1), elevateToGlobal);
 						return;
 					} else if (match.groupCount() == 2) {
+						context.getLogger().log(DEBUG_LEVEL, "Found '" + match.group(1) + "' : '" + match.group(2) + "'");
 						// Take first value and do not overwrite, even though scanning proceeds
 						// through the rest of the file to find other matches to the pattern.
-						if (map.get(match.group(1)) == null) {
+						if (!map.containsKey(match.group(1))) {
 							FileLookupUtils.addOutput(context, group, match.group(1), match.group(2), elevateToGlobal);
 							map.put(match.group(1), match.group(2));
 						}
