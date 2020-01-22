@@ -67,17 +67,17 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 	@PluginProperty(title = "Pattern", description = "Regular expression to find, with one or two capture fields", required = true)
 	private String regex;
 
-	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = false)
+	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)")
 	private boolean elevateToGlobal;
 
 	@Override
 	public void executeNodeStep(PluginStepContext context, Map<String, Object> configuration, INodeEntry node)
 			throws NodeStepException {
-		String path = configuration.getOrDefault("path", this.path).toString();
-		String group = configuration.getOrDefault("group", this.group).toString();
-		String name = configuration.getOrDefault("name", this.name).toString();
-		String regex = configuration.getOrDefault("regex", this.regex).toString();
-		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
+		path = (this.path != null ? this.path : configuration.get("path").toString());
+		group = (this.group != null ? this.group : configuration.get("group").toString());
+		name = (this.name != null ? this.name : configuration.get("name").toString());
+		regex = (this.regex != null ? this.regex : configuration.get("regex").toString());
+		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
 				.equals("true");
 
 		Pattern pattern = Pattern.compile(regex);

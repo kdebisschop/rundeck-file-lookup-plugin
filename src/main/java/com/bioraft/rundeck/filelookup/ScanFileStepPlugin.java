@@ -60,22 +60,22 @@ public class ScanFileStepPlugin implements StepPlugin {
 	@PluginProperty(title = "Group", description = "Variable group (i.e., ${group.x}}", required = true, defaultValue = "data")
 	private String group;
 
-	@PluginProperty(title = "Name", description = "Variable name (i.e., ${group.name}) [ignored when Pattern has 2 capture fields]", required = false)
+	@PluginProperty(title = "Name", description = "Variable name (i.e., ${group.name}) [ignored when Pattern has 2 capture fields]")
 	private String name;
 
 	@PluginProperty(title = "Pattern", description = "Regular expression to find, with one or two capture fields", required = true)
 	private String regex;
 
-	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = false)
+	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)")
 	private boolean elevateToGlobal;
 
 	@Override
 	public void executeStep(PluginStepContext context, Map<String, Object> configuration) throws StepException {
-		String path = configuration.getOrDefault("path", this.path).toString();
-		String group = configuration.getOrDefault("group", this.group).toString();
-		String name = configuration.getOrDefault("name", this.name).toString();
-		String regex = configuration.getOrDefault("regex", this.regex).toString();
-		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
+		path = (this.path != null ? this.path : configuration.get("path").toString());
+		group = (this.group != null ? this.group : configuration.get("group").toString());
+		name = (this.name != null ? this.name : configuration.get("name").toString());
+		regex = (this.regex != null ? this.regex : configuration.get("regex").toString());
+		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
 				.equals("true");
 
 		Pattern pattern = Pattern.compile(regex);
@@ -100,6 +100,7 @@ public class ScanFileStepPlugin implements StepPlugin {
 						return;
 					} else if (match.groupCount() == 2) {
 						if (map.get(match.group(1)) == null) {
+							FileLookupUtils.addOutput(context, group, match.group(1), match.group(2), elevateToGlobal);
 							map.put(match.group(1), match.group(2));
 						}
 					}
@@ -112,8 +113,8 @@ public class ScanFileStepPlugin implements StepPlugin {
 			String msg = "Could not read file " + path;
 			throw new StepException(msg, e, FileLookupFailureReason.FileNotReadable);
 		}
-		for (Map.Entry<String, String> element : map.entrySet()) {
-			FileLookupUtils.addOutput(context, group, element.getKey(), element.getValue(), elevateToGlobal);
-		}
+//		for (Map.Entry<String, String> element : map.entrySet()) {
+//			FileLookupUtils.addOutput(context, group, element.getKey(), element.getValue(), elevateToGlobal);
+//		}
 	}
 }
