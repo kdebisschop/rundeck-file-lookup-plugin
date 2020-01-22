@@ -83,9 +83,6 @@ public class ScanFileStepPlugin implements StepPlugin {
 				.equals("true");
 
 		Pattern pattern = Pattern.compile(regex);
-		MatchResult match;
-		Matcher matcher;
-		String line;
 
 		if (name == null || name.equals("")) {
 			name = "data";
@@ -97,14 +94,14 @@ public class ScanFileStepPlugin implements StepPlugin {
 			// Scan lines for a match.
 			// Optimize by returning immediately when there is only one capture field.
 			do {
-				line = reader.readLine();
+				String line = reader.readLine();
 				if (line == null) {
 					return;
 				}
-				matcher = pattern.matcher(line);
+				Matcher matcher = pattern.matcher(line);
 				if (matcher.find()) {
 					context.getLogger().log(DEBUG_LEVEL, "Matched " + line);
-					match = matcher.toMatchResult();
+					MatchResult match = matcher.toMatchResult();
 					if (match.groupCount() == 1) {
 						FileLookupUtils.addOutput(context, group, name, match.group(1), elevateToGlobal);
 						return;
