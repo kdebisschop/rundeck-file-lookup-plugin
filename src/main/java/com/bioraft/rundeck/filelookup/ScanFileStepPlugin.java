@@ -98,6 +98,7 @@ public class ScanFileStepPlugin implements StepPlugin {
 			while ((line = reader.readLine()) != null) {
 				matcher = pattern.matcher(line);
 				if (matcher.find()) {
+					context.getLogger().log(DEBUG_LEVEL, "Matched " + line);
 					match = matcher.toMatchResult();
 					if (match.groupCount() == 1) {
 						FileLookupUtils.addOutput(context, group, name, match.group(1), elevateToGlobal);
