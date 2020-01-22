@@ -87,7 +87,7 @@ public class ScanFileStepPluginTest {
 
 	@Test
 	public void canRunWithoutMatch() throws StepException {
-		configuration.put("regex", "com[.]example[.]label3: (.*)");
+		configuration.put("regex", "^\\s+com[.]example[.]label3: (.*)");
 		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 
 		this.plugin.executeStep(context, configuration);
@@ -114,7 +114,7 @@ public class ScanFileStepPluginTest {
 
 	@Test
 	public void canFindMultipleCapture() throws StepException {
-		configuration.put("regex", "com[.]example[.](label1|label2): (.*)");
+		configuration.put("regex", "^\\s+com[.]example[.](label1|label2): (.*)");
 		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 
 		this.plugin.executeStep(context, configuration);

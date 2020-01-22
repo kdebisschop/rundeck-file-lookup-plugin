@@ -33,8 +33,6 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.dtolabs.rundeck.plugins.step.StepPlugin;
 
-import static com.dtolabs.rundeck.core.Constants.ERR_LEVEL;
-import static com.dtolabs.rundeck.core.Constants.INFO_LEVEL;
 import static com.dtolabs.rundeck.core.Constants.DEBUG_LEVEL;
 
 /**
@@ -75,18 +73,19 @@ public class ScanFileStepPlugin implements StepPlugin {
 
 	@Override
 	public void executeStep(PluginStepContext context, Map<String, Object> configuration) throws StepException {
-		path = (this.path != null ? this.path : configuration.get("path").toString());
-		group = (this.group != null ? this.group : configuration.get("group").toString());
-		name = (this.name != null ? this.name : configuration.get("name").toString());
-		regex = (this.regex != null ? this.regex : configuration.get("regex").toString());
-		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
+		path = configuration.getOrDefault("path", this.path).toString();
+		group = configuration.getOrDefault("group", this.group).toString();
+		if (name == null || name.length() == 0) {
+			name = configuration.getOrDefault("name", "").toString();
+			if (name == null || name.length() == 0) {
+				name = "data";
+			}
+		}
+		regex = configuration.getOrDefault("regex", this.regex).toString();
+		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
 				.equals("true");
 
 		Pattern pattern = Pattern.compile(regex);
-
-		if (name == null || name.equals("")) {
-			name = "data";
-		}
 
 		Map<String, String> map = new HashMap<>();
 		try {
@@ -106,6 +105,8 @@ public class ScanFileStepPlugin implements StepPlugin {
 						return;
 					} else if (match.groupCount() == 2) {
 						context.getLogger().log(DEBUG_LEVEL, "Found '" + match.group(1) + "' : '" + match.group(2) + "'");
+						// Take first value and do not overwrite, even though scanning proceeds
+						// through the rest of the file to find other matches to the pattern.
 						if (!map.containsKey(match.group(1))) {
 							FileLookupUtils.addOutput(context, group, match.group(1), match.group(2), elevateToGlobal);
 							map.put(match.group(1), match.group(2));
@@ -120,8 +121,5 @@ public class ScanFileStepPlugin implements StepPlugin {
 			String msg = "Could not read file " + path;
 			throw new StepException(msg, e, FileLookupFailureReason.FileNotReadable);
 		}
-//		for (Map.Entry<String, String> element : map.entrySet()) {
-//			FileLookupUtils.addOutput(context, group, element.getKey(), element.getValue(), elevateToGlobal);
-//		}
 	}
 }

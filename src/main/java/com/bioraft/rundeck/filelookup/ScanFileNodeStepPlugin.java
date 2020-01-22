@@ -34,8 +34,6 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.step.NodeStepPlugin;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 
-import static com.dtolabs.rundeck.core.Constants.ERR_LEVEL;
-import static com.dtolabs.rundeck.core.Constants.INFO_LEVEL;
 import static com.dtolabs.rundeck.core.Constants.DEBUG_LEVEL;
 
 /**
@@ -77,30 +75,33 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 	@Override
 	public void executeNodeStep(PluginStepContext context, Map<String, Object> configuration, INodeEntry node)
 			throws NodeStepException {
-		path = (this.path != null ? this.path : configuration.get("path").toString());
-		group = (this.group != null ? this.group : configuration.get("group").toString());
-		name = (this.name != null ? this.name : configuration.get("name").toString());
-		regex = (this.regex != null ? this.regex : configuration.get("regex").toString());
-		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
+		path = configuration.getOrDefault("path", this.path).toString();
+		group = configuration.getOrDefault("group", this.group).toString();
+		if (name == null || name.length() == 0) {
+			name = configuration.getOrDefault("name", "").toString();
+			if (name == null || name.length() == 0) {
+				name = "data";
+			}
+		}
+		regex = configuration.getOrDefault("regex", this.regex).toString();
+		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
 				.equals("true");
 
 		Pattern pattern = Pattern.compile(regex);
-		MatchResult match;
-		Matcher matcher;
-		String line;
-
-		if (name == null || name.equals("")) {
-			name = "data";
-		}
 
 		Map<String, String> map = new HashMap<>();
-		try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
 			// Scan lines for a match.
 			// Optimize by returning immediately when there is only one capture field.
-			while ((line = reader.readLine()) != null) {
-				matcher = pattern.matcher(line);
-				if (matcher.find()) {
-					match = matcher.toMatchResult();
+			do {
+				String line = reader.readLine();
+				if (line == null) {
+					return;
+				}
+				Matcher match = pattern.matcher(line);
+				if (match.find()) {
+					context.getLogger().log(DEBUG_LEVEL, "Matched " + line);
 					if (match.groupCount() == 1) {
 						FileLookupUtils.addOutput(context, group, name, match.group(1), elevateToGlobal);
 						return;
@@ -114,7 +115,7 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 						}
 					}
 				}
-			}
+			} while (true);
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
 			String nodeName = node.getNodename();
