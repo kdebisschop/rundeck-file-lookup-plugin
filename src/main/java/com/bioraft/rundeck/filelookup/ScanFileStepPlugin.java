@@ -92,10 +92,15 @@ public class ScanFileStepPlugin implements StepPlugin {
 		}
 
 		Map<String, String> map = new HashMap<>();
-		try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
 			// Scan lines for a match.
 			// Optimize by returning immediately when there is only one capture field.
-			while ((line = reader.readLine()) != null) {
+			do {
+				line = reader.readLine();
+				if (line == null) {
+					return;
+				}
 				matcher = pattern.matcher(line);
 				if (matcher.find()) {
 					context.getLogger().log(DEBUG_LEVEL, "Matched " + line);
@@ -111,7 +116,7 @@ public class ScanFileStepPlugin implements StepPlugin {
 						}
 					}
 				}
-			}
+			} while (true);
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
 			throw new StepException(msg, e, FileLookupFailureReason.FileNotFound);
