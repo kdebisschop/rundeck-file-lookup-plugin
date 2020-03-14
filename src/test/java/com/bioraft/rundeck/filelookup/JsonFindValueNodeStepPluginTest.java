@@ -55,7 +55,7 @@ public class JsonFindValueNodeStepPluginTest {
 	PluginStepContext context;
 
 	@Mock
-	PluginLogger pluginLogger;
+	PluginLogger logger;
 
 	@Mock
 	INodeEntry entry;
@@ -85,7 +85,7 @@ public class JsonFindValueNodeStepPluginTest {
 	@Test(expected = StepException.class)
 	public void noFileThrowsException() throws StepException {
 		configuration.put("path", "nosuchfile");
-		when(context.getLogger()).thenReturn(pluginLogger);
+		when(context.getLogger()).thenReturn(logger);
 		this.plugin.executeNodeStep(context, configuration, entry);
 	}
 

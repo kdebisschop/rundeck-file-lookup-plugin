@@ -89,34 +89,8 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 			}
 		}
 
-		Pattern pattern = Pattern.compile(regex);
-
-		Map<String, String> map = new HashMap<>();
-		try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-			// Scan lines for a match.
-			// Optimize by returning immediately when there is only one capture field.
-			do {
-				String line = reader.readLine();
-				if (line == null) {
-					return;
-				}
-				Matcher match = pattern.matcher(line);
-				if (match.find()) {
-					context.getLogger().log(DEBUG_LEVEL, "Matched " + line);
-					if (match.groupCount() == 1) {
-						FileLookupUtils.addOutput(context, group, name, match.group(1), elevateToGlobal);
-						return;
-					} else if (match.groupCount() == 2) {
-						context.getLogger().log(DEBUG_LEVEL, "Found '" + match.group(1) + "' : '" + match.group(2) + "'");
-						// Take first value and do not overwrite, even though scanning proceeds
-						// through the rest of the file to find other matches to the pattern.
-						if (!map.containsKey(match.group(1))) {
-							FileLookupUtils.addOutput(context, group, match.group(1), match.group(2), elevateToGlobal);
-							map.put(match.group(1), match.group(2));
-						}
-					}
-				}
-			} while (true);
+		try {
+			new FileLookupUtils(context).scanPropertiesFile(path, group, name, regex, elevateToGlobal);
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
 			String nodeName = node.getNodename();

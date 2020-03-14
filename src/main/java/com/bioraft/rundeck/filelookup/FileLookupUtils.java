@@ -21,11 +21,17 @@ import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import static com.dtolabs.rundeck.core.Constants.DEBUG_LEVEL;
 import static com.dtolabs.rundeck.core.Constants.ERR_LEVEL;
 
 public class FileLookupUtils {
@@ -36,7 +42,8 @@ public class FileLookupUtils {
 		this.pluginStepContext = context;
 	}
 
-	void scanJsonFile(String path, String fieldName, String group, String name, boolean elevateToGlobal) throws IOException {
+	void scanJsonFile(String path, String fieldName, String group, String name, boolean elevateToGlobal)
+			throws IOException {
 
 		FileReader reader;
 		try {
@@ -59,6 +66,54 @@ public class FileLookupUtils {
 		if (value != null) {
 			addFieldToOutput(group, name, value, elevateToGlobal);
 		}
+	}
+
+
+	void scanPropertiesFile(String path, String group, String name, String regex, boolean elevateToGlobal)
+			throws IOException {
+
+		Pattern pattern = Pattern.compile(regex);
+
+		Map<String, String> map = new HashMap<>();
+
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new FileReader(path));
+		} catch (FileNotFoundException e) {
+			String message = "Could not find file '" + path + "'";
+			pluginStepContext.getLogger().log(ERR_LEVEL, message);
+			throw(e);
+		}
+		// Scan lines for a match.
+		// Optimize by returning immediately when there is only one capture field.
+		do {
+			String line = null;
+			try {
+				line = reader.readLine();
+			} catch (IOException e) {
+				pluginStepContext.getLogger().log(ERR_LEVEL, "Could read file '" + path + "'");
+				throw(e);
+			}
+			if (line == null) {
+				return;
+			}
+			Matcher match = pattern.matcher(line);
+			if (match.find()) {
+				pluginStepContext.getLogger().log(DEBUG_LEVEL, "Matched " + line);
+				if (match.groupCount() == 1) {
+					addFieldToOutput(group, name, match.group(1), elevateToGlobal);
+					return;
+				} else if (match.groupCount() == 2) {
+					pluginStepContext.getLogger().log(DEBUG_LEVEL, "Found '" + match.group(1) + "' : '" + match.group(2) + "'");
+					// Take first value and do not overwrite, even though scanning proceeds
+					// through the rest of the file to find other matches to the pattern.
+					if (!map.containsKey(match.group(1))) {
+						addFieldToOutput(group, match.group(1), match.group(2), elevateToGlobal);
+						map.put(match.group(1), match.group(2));
+					}
+				}
+			}
+		} while (true);
 	}
 
 	/**
@@ -90,14 +145,4 @@ public class FileLookupUtils {
 			pluginStepContext.getLogger().log(Constants.DEBUG_LEVEL, "Elevating to global ${export." + groupName + "}.");
 		}
 	}
-
-	static void addOutput(PluginStepContext context, String group, String name, String value, boolean elevate) {
-		context.getOutputContext().addOutput(group, name, value);
-		if (elevate) {
-			String groupName = group + "." + name;
-			context.getOutputContext().addOutput(ContextView.global(), "export", groupName, value);
-			context.getLogger().log(Constants.DEBUG_LEVEL, "Elevating to global ${export." + groupName + "}.");
-		}
-	}
-
 }
