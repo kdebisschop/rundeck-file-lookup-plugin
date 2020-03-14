@@ -75,8 +75,6 @@ public class JsonFindValueStepPlugin implements StepPlugin {
 
 		try {
 			(new FileLookupUtils(context)).scanJsonFile(path, fieldName, group, name, elevateToGlobal);
-		} catch (FileNotFoundException e) {
-			throw new StepException("Could not find file " + path, e, FileLookupFailureReason.FILE_NOT_FOUND);
 		} catch (IOException e) {
 			throw new StepException("Could not read/parse file " + path, e, FileLookupFailureReason.FILE_NOT_READABLE);
 		}

@@ -76,8 +76,6 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 
 		try {
 			(new FileLookupUtils(context)).scanJsonFile(path, fieldName, group, name, elevateToGlobal);
-		} catch (FileNotFoundException e) {
-			throw new NodeStepException("Could not find file " + path, e, FileLookupFailureReason.FILE_NOT_FOUND, node.getNodename());
 		} catch (IOException e) {
 			throw new NodeStepException("Could not read/parse file " + path, e, FileLookupFailureReason.FILE_NOT_READABLE, node.getNodename());
 		}

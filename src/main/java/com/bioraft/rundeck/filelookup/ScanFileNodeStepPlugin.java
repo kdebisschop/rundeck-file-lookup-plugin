@@ -78,10 +78,6 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 
 		try {
 			new FileLookupUtils(context).scanPropertiesFile(path, group, name, regex, elevateToGlobal);
-		} catch (FileNotFoundException e) {
-			String msg = "Could not find file " + path;
-			String nodeName = node.getNodename();
-			throw new NodeStepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND, nodeName);
 		} catch (IOException e) {
 			String msg = "Could not read file " + path;
 			String nodeName = node.getNodename();

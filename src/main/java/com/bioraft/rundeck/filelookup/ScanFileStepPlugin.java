@@ -76,9 +76,6 @@ public class ScanFileStepPlugin implements StepPlugin {
 
 		try {
 			new FileLookupUtils(context).scanPropertiesFile(path, group, name, regex, elevateToGlobal);
-		} catch (FileNotFoundException e) {
-			String msg = "Could not find file " + path;
-			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND);
 		} catch (IOException e) {
 			String msg = "Could not read file " + path;
 			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_READABLE);
