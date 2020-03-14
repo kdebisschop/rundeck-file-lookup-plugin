@@ -74,13 +74,11 @@ public class JsonFindValueStepPlugin implements StepPlugin {
 				.equals("true");
 
 		try {
-			(new FileLookupUtils(context)).scanFile(path, fieldName, group, name, elevateToGlobal);
+			(new FileLookupUtils(context)).scanJsonFile(path, fieldName, group, name, elevateToGlobal);
 		} catch (FileNotFoundException e) {
-			String msg = "Could not find file " + path;
-			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND);
+			throw new StepException("Could not find file " + path, e, FileLookupFailureReason.FILE_NOT_FOUND);
 		} catch (IOException e) {
-			String msg = "Could not read file " + path;
-			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_READABLE);
+			throw new StepException("Could not read/parse file " + path, e, FileLookupFailureReason.FILE_NOT_READABLE);
 		}
 	}
 }
