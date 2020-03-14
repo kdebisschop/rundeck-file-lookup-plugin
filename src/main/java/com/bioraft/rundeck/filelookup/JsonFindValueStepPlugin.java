@@ -16,12 +16,6 @@
 
 package com.bioraft.rundeck.filelookup;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException;
 import com.dtolabs.rundeck.core.plugins.Plugin;
 import com.dtolabs.rundeck.plugins.ServiceNameConstants;
@@ -29,10 +23,11 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginDescription;
 import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.dtolabs.rundeck.plugins.step.StepPlugin;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static com.bioraft.rundeck.filelookup.FileLookupUtils.searchTree;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Map;
+
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 /**
@@ -79,13 +74,7 @@ public class JsonFindValueStepPlugin implements StepPlugin {
 				.equals("true");
 
 		try {
-			FileReader reader = new FileReader(path);
-			ObjectMapper objectMapper = new ObjectMapper();
-			JsonNode rootNode = objectMapper.readTree(reader);
-			String value = searchTree(rootNode, fieldName);
-			if (value != null) {
-				FileLookupUtils.addOutput(context, group, name, value, elevateToGlobal);
-			}
+			(new FileLookupUtils(context)).scanFile(path, fieldName, group, name, elevateToGlobal);
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
 			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND);

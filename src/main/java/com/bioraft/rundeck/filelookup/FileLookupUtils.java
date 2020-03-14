@@ -19,21 +19,27 @@ import com.dtolabs.rundeck.core.Constants;
 import com.dtolabs.rundeck.core.dispatcher.ContextView;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 
 public class FileLookupUtils {
 
-	private FileLookupUtils() {
-		throw new IllegalStateException("Utility class");
+	PluginStepContext pluginStepContext;
+
+	public FileLookupUtils(PluginStepContext context) {
+		this.pluginStepContext = context;
 	}
 
-	public static void addOutput(PluginStepContext context, String group, String name, String value, boolean elevate) {
-		context.getOutputContext().addOutput(group, name, value);
-		if (elevate) {
-			String groupName = group + "." + name;
-			context.getOutputContext().addOutput(ContextView.global(), "export", groupName, value);
-			context.getLogger().log(Constants.DEBUG_LEVEL, "Elevating to global ${export." + groupName + "}.");
+	void scanFile(String path, String fieldName, String group, String name, boolean elevateToGlobal) throws IOException {
+		FileReader reader = new FileReader(path);
+		ObjectMapper objectMapper = new ObjectMapper();
+		JsonNode rootNode = objectMapper.readTree(reader);
+		String value = searchTree(rootNode, fieldName);
+		if (value != null) {
+			addFieldToOutput(group, name, value, elevateToGlobal);
 		}
 	}
 
@@ -43,7 +49,7 @@ public class FileLookupUtils {
 	 * @param node The node tree to search.
 	 * @return The textual form of the first matched field, or null if not matched.
 	 */
-	static String searchTree(JsonNode node, String fieldName) {
+	private String searchTree(JsonNode node, String fieldName) {
 		List<JsonNode> values = node.findValues(fieldName);
 		for (JsonNode value : values) {
 			if (value.isValueNode()) {
@@ -56,6 +62,24 @@ public class FileLookupUtils {
 			}
 		}
 		return null;
+	}
+
+	private void addFieldToOutput(String group, String name, String value, boolean elevate) {
+		pluginStepContext.getOutputContext().addOutput(group, name, value);
+		if (elevate) {
+			String groupName = group + "." + name;
+			pluginStepContext.getOutputContext().addOutput(ContextView.global(), "export", groupName, value);
+			pluginStepContext.getLogger().log(Constants.DEBUG_LEVEL, "Elevating to global ${export." + groupName + "}.");
+		}
+	}
+
+	static void addOutput(PluginStepContext context, String group, String name, String value, boolean elevate) {
+		context.getOutputContext().addOutput(group, name, value);
+		if (elevate) {
+			String groupName = group + "." + name;
+			context.getOutputContext().addOutput(ContextView.global(), "export", groupName, value);
+			context.getLogger().log(Constants.DEBUG_LEVEL, "Elevating to global ${export." + groupName + "}.");
+		}
 	}
 
 }

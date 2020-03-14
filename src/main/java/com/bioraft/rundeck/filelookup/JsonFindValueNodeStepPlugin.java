@@ -24,15 +24,11 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginDescription;
 import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.step.NodeStepPlugin;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.bioraft.rundeck.filelookup.FileLookupUtils.searchTree;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 /**
@@ -79,13 +75,7 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 				.equals("true");
 
 		try {
-			FileReader reader = new FileReader(path);
-			ObjectMapper objectMapper = new ObjectMapper();
-			JsonNode rootNode = objectMapper.readTree(reader);
-			String value = searchTree(rootNode, fieldName);
-			if (value != null) {
-				FileLookupUtils.addOutput(context, group, name, value, elevateToGlobal);
-			}
+			(new FileLookupUtils(context)).scanFile(path, fieldName, group, name, elevateToGlobal);
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
 			String nodeName = node.getNodename();
