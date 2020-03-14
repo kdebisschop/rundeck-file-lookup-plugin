@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.dtolabs.rundeck.plugins.PluginLogger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +54,9 @@ public class JsonFindValueStepPluginTest {
 	PluginStepContext context;
 
 	@Mock
+	PluginLogger logger;
+
+	@Mock
 	SharedOutputContext sharedOutputContext;
 
 	@Captor
@@ -77,6 +81,7 @@ public class JsonFindValueStepPluginTest {
 	@Test(expected = StepException.class)
 	public void noFileThrowsException() throws StepException {
 		configuration.put("path", "nosuchfile");
+		when(context.getLogger()).thenReturn(logger);
 		this.plugin.executeStep(context, configuration);
 	}
 

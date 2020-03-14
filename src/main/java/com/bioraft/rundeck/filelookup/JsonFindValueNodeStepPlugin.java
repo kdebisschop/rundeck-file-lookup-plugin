@@ -75,13 +75,13 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 				.equals("true");
 
 		try {
-			(new FileLookupUtils(context)).scanFile(path, fieldName, group, name, elevateToGlobal);
+			(new FileLookupUtils(context)).scanJsonFile(path, fieldName, group, name, elevateToGlobal);
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
 			String nodeName = node.getNodename();
 			throw new NodeStepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND, nodeName);
 		} catch (IOException e) {
-			String msg = "Could not read file " + path;
+			String msg = "Could not read/parse file " + path;
 			String nodeName = node.getNodename();
 			throw new NodeStepException(msg, e, FileLookupFailureReason.FILE_NOT_READABLE, nodeName);
 		}

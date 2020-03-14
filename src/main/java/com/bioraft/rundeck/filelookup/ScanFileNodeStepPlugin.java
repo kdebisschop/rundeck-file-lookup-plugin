@@ -92,8 +92,7 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 		Pattern pattern = Pattern.compile(regex);
 
 		Map<String, String> map = new HashMap<>();
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(path));
+		try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
 			// Scan lines for a match.
 			// Optimize by returning immediately when there is only one capture field.
 			do {

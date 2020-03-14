@@ -21,9 +21,12 @@ import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+
+import static com.dtolabs.rundeck.core.Constants.ERR_LEVEL;
 
 public class FileLookupUtils {
 
@@ -33,10 +36,25 @@ public class FileLookupUtils {
 		this.pluginStepContext = context;
 	}
 
-	void scanFile(String path, String fieldName, String group, String name, boolean elevateToGlobal) throws IOException {
-		FileReader reader = new FileReader(path);
+	void scanJsonFile(String path, String fieldName, String group, String name, boolean elevateToGlobal) throws IOException {
+
+		FileReader reader = null;
+		try {
+			reader = new FileReader(path);
+		} catch (FileNotFoundException e) {
+			String message = "Could not find file '" + path + "'";
+			pluginStepContext.getLogger().log(ERR_LEVEL, message);
+			throw(e);
+		}
 		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode rootNode = objectMapper.readTree(reader);
+		JsonNode rootNode = null;
+		try {
+			rootNode = objectMapper.readTree(reader);
+		} catch (IOException e) {
+			String message = "Could parse JSON file '" + path + "'";
+			pluginStepContext.getLogger().log(ERR_LEVEL, message);
+			throw(e);
+		}
 		String value = searchTree(rootNode, fieldName);
 		if (value != null) {
 			addFieldToOutput(group, name, value, elevateToGlobal);
