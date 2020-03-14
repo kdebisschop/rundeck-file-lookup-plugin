@@ -23,7 +23,6 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.dtolabs.rundeck.plugins.step.StepPlugin;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
