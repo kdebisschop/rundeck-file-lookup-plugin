@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
+import static com.bioraft.rundeck.filelookup.Constants.*;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 /**
@@ -50,19 +51,19 @@ import static org.apache.commons.lang.StringUtils.defaultString;
 public class ScanFileStepPlugin implements StepPlugin {
 	public static final String SERVICE_PROVIDER_NAME = "com.bioraft.rundeck.filelookup.ScanFileStepPlugin";
 
-	@PluginProperty(title = "Path", description = "Path to the file to scan", required = true)
+	@PluginProperty(title = OPT_PATH, description = OPT_PATH_DESCRIPTION, required = true)
 	private String path;
 
-	@PluginProperty(title = "Group", description = "Variable group (i.e., ${group.x}}", required = true, defaultValue = "data")
+	@PluginProperty(title = OPT_GROUP, description = OPT_GROUP_DESCRIPTION, required = true, defaultValue = "data")
 	private String group;
 
-	@PluginProperty(title = "Name", description = "Variable name (i.e., ${group.name}) [ignored when Pattern has 2 capture fields]")
+	@PluginProperty(title = OPT_NAME, description = OPT_NAME_DESCRIPTION)
 	private String name;
 
-	@PluginProperty(title = "Pattern", description = "Regular expression to find, with one or two capture fields", required = true)
+	@PluginProperty(title = OPT_PATTERN, description = OPT_PATTERN_DESCRIPTION, required = true)
 	private String regex;
 
-	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = true, defaultValue = "false")
+	@PluginProperty(title = OPT_GLOBAL, description = OPT_GLOBAL_DESCRIPTION, required = true, defaultValue = "false")
 	private boolean elevateToGlobal;
 
 	@Override

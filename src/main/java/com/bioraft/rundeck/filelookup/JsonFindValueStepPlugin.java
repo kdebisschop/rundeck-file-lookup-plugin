@@ -28,6 +28,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
+import static com.bioraft.rundeck.filelookup.Constants.*;
+import static com.bioraft.rundeck.filelookup.Constants.OPT_NAME_DESCRIPTION;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 /**
@@ -49,19 +51,19 @@ import static org.apache.commons.lang.StringUtils.defaultString;
 public class JsonFindValueStepPlugin implements StepPlugin {
 	public static final String SERVICE_PROVIDER_NAME = "com.bioraft.rundeck.jsonlookup.JsonLookupStepPlugin";
 
-	@PluginProperty(title = "Path", description = "Path to the JSON file", required = true)
+	@PluginProperty(title = OPT_PATH, description = OPT_PATH_DESCRIPTION, required = true)
 	private String path;
 
-	@PluginProperty(title = "Group", description = "Variable group (i.e., ${group.x}", required = true)
+	@PluginProperty(title = OPT_GROUP, description = OPT_GROUP_DESCRIPTION, required = true)
 	private String group;
 
-	@PluginProperty(title = "Name", description = "Variable name (i.e., ${group.name}", required = true)
+	@PluginProperty(title = OPT_NAME, description = OPT_NAME_DESCRIPTION)
 	private String name;
 
-	@PluginProperty(title = "Field Name", description = "Field name to lookup in JSON", required = true)
+	@PluginProperty(title = OPT_FIELD_NAME, description = OPT_FIELD_NAME_DESCRIPTION, required = true)
 	private String fieldName;
 
-	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", defaultValue="false", required = true)
+	@PluginProperty(title = OPT_GLOBAL, description = OPT_GLOBAL_DESCRIPTION, required = true, defaultValue = "false")
 	private boolean elevateToGlobal;
 
 	@Override
