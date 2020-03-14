@@ -38,7 +38,7 @@ public class FileLookupUtils {
 
 	void scanJsonFile(String path, String fieldName, String group, String name, boolean elevateToGlobal) throws IOException {
 
-		FileReader reader = null;
+		FileReader reader;
 		try {
 			reader = new FileReader(path);
 		} catch (FileNotFoundException e) {
@@ -47,7 +47,7 @@ public class FileLookupUtils {
 			throw(e);
 		}
 		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode rootNode = null;
+		JsonNode rootNode;
 		try {
 			rootNode = objectMapper.readTree(reader);
 		} catch (IOException e) {
