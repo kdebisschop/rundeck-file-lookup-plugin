@@ -36,7 +36,9 @@ import static com.dtolabs.rundeck.core.Constants.ERR_LEVEL;
 
 public class FileLookupUtils {
 
-	PluginStepContext pluginStepContext;
+	private PluginStepContext pluginStepContext;
+
+	private Map<String, String> map;
 
 	public FileLookupUtils(PluginStepContext context) {
 		this.pluginStepContext = context;
@@ -74,44 +76,46 @@ public class FileLookupUtils {
 
 		Pattern pattern = Pattern.compile(regex);
 
-		Map<String, String> map = new HashMap<>();
+		map = new HashMap<>();
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
 			// Scan lines for a match.
 			// Optimize by returning immediately when there is only one capture field.
 			do {
 				String line;
-				try {
-					line = reader.readLine();
-				} catch (IOException e) {
-					pluginStepContext.getLogger().log(ERR_LEVEL, "Could read file '" + path + "'");
-					throw(e);
-				}
-				if (line == null) {
+				line = reader.readLine();
+				if (line == null || matchLine(pattern, line, group, name, elevateToGlobal)) {
 					return;
-				}
-				Matcher match = pattern.matcher(line);
-				if (match.find()) {
-					pluginStepContext.getLogger().log(DEBUG_LEVEL, "Matched " + line);
-					if (match.groupCount() == 1) {
-						addFieldToOutput(group, name, match.group(1), elevateToGlobal);
-						return;
-					} else if (match.groupCount() == 2) {
-						pluginStepContext.getLogger().log(DEBUG_LEVEL, "Found '" + match.group(1) + "' : '" + match.group(2) + "'");
-						// Take first value and do not overwrite, even though scanning proceeds
-						// through the rest of the file to find other matches to the pattern.
-						if (!map.containsKey(match.group(1))) {
-							addFieldToOutput(group, match.group(1), match.group(2), elevateToGlobal);
-							map.put(match.group(1), match.group(2));
-						}
-					}
 				}
 			} while (true);
 		} catch (FileNotFoundException e) {
 			String message = "Could not find file '" + path + "'";
 			pluginStepContext.getLogger().log(ERR_LEVEL, message);
 			throw(e);
+		} catch (IOException e) {
+			pluginStepContext.getLogger().log(ERR_LEVEL, "Could read file '" + path + "'");
+			throw(e);
 		}
+	}
+
+	private boolean matchLine(Pattern pattern, String line, String group, String name, boolean elevateToGlobal) {
+		Matcher match = pattern.matcher(line);
+		if (match.find()) {
+			pluginStepContext.getLogger().log(DEBUG_LEVEL, "Matched " + line);
+			if (match.groupCount() == 1) {
+				addFieldToOutput(group, name, match.group(1), elevateToGlobal);
+				return true;
+			} else if (match.groupCount() == 2) {
+				pluginStepContext.getLogger().log(DEBUG_LEVEL, "Found '" + match.group(1) + "' : '" + match.group(2) + "'");
+				// Take first value and do not overwrite, even though scanning proceeds
+				// through the rest of the file to find other matches to the pattern.
+				if (!map.containsKey(match.group(1))) {
+					addFieldToOutput(group, match.group(1), match.group(2), elevateToGlobal);
+					map.put(match.group(1), match.group(2));
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
