@@ -28,6 +28,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
+import static org.apache.commons.lang.StringUtils.defaultString;
+
 /**
  * Workflow Step Plug-in to find value of first matching text file.
  * 
@@ -67,20 +69,11 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 	@Override
 	public void executeNodeStep(PluginStepContext context, Map<String, Object> configuration, INodeEntry node)
 			throws NodeStepException {
-		path = configuration.getOrDefault("path", this.path).toString();
-		group = configuration.getOrDefault("group", this.group).toString();
-		regex = configuration.getOrDefault("regex", this.regex).toString();
-		if (configuration.containsKey("elevateToGlobal")) {
-			elevateToGlobal = configuration.get("elevateToGlobal").toString().equals("true");
-		}
-
-		// Setting name is different because it is not a required field.
-		if (name == null || name.length() == 0) {
-			name = configuration.getOrDefault("name", "").toString();
-			if (name == null || name.length() == 0) {
-				name = "data";
-			}
-		}
+		path = configuration.getOrDefault("path", path).toString();
+		group = configuration.getOrDefault("group", group).toString();
+		name = configuration.getOrDefault("name", defaultString(name, "data")).toString();
+		regex = configuration.getOrDefault("regex", regex).toString();
+		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", elevateToGlobal).toString().equals("true");
 
 		try {
 			new FileLookupUtils(context).scanPropertiesFile(path, group, name, regex, elevateToGlobal);
