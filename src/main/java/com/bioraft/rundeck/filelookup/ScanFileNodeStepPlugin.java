@@ -121,11 +121,11 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
 			String nodeName = node.getNodename();
-			throw new NodeStepException(msg, e, FileLookupFailureReason.FileNotFound, nodeName);
+			throw new NodeStepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND, nodeName);
 		} catch (IOException e) {
 			String msg = "Could not read file " + path;
 			String nodeName = node.getNodename();
-			throw new NodeStepException(msg, e, FileLookupFailureReason.FileNotReadable, nodeName);
+			throw new NodeStepException(msg, e, FileLookupFailureReason.FILE_NOT_READABLE, nodeName);
 		}
 	}
 }

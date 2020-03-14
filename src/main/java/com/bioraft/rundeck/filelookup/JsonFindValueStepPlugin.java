@@ -16,12 +16,6 @@
 
 package com.bioraft.rundeck.filelookup;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException;
 import com.dtolabs.rundeck.core.plugins.Plugin;
 import com.dtolabs.rundeck.plugins.ServiceNameConstants;
@@ -29,8 +23,12 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginDescription;
 import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.dtolabs.rundeck.plugins.step.StepPlugin;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Map;
+
+import static org.apache.commons.lang.StringUtils.defaultString;
 
 /**
  * Workflow Step Plug-in to find value of first matching field name in JSON
@@ -63,53 +61,26 @@ public class JsonFindValueStepPlugin implements StepPlugin {
 	@PluginProperty(title = "Field Name", description = "Field name to lookup in JSON", required = true)
 	private String fieldName;
 
-	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = false)
+	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", defaultValue="false", required = true)
 	private boolean elevateToGlobal;
 
 	@Override
 	public void executeStep(PluginStepContext context, Map<String, Object> configuration) throws StepException {
-		String path = configuration.getOrDefault("path", this.path).toString();
-		String group = configuration.getOrDefault("group", this.group).toString();
-		String name = configuration.getOrDefault("name", this.name).toString();
-		String fieldName = configuration.getOrDefault("fieldName", this.fieldName).toString();
-		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
+		path = configuration.getOrDefault("path", defaultString(path)).toString();
+		group = configuration.getOrDefault("group", defaultString(group)).toString();
+		name = configuration.getOrDefault("name", defaultString(name)).toString();
+		fieldName = configuration.getOrDefault("fieldName", defaultString(fieldName)).toString();
+		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
 				.equals("true");
 
 		try {
-			FileReader reader = new FileReader(path);
-			ObjectMapper objectMapper = new ObjectMapper();
-			JsonNode rootNode = objectMapper.readTree(reader);
-			String value = this.searchTree(rootNode, fieldName);
-			if (value != null) {
-				FileLookupUtils.addOutput(context, group, name, value, elevateToGlobal);
-			}
+			(new FileLookupUtils(context)).scanFile(path, fieldName, group, name, elevateToGlobal);
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
-			throw new StepException(msg, e, FileLookupFailureReason.FileNotFound);
+			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND);
 		} catch (IOException e) {
 			String msg = "Could not read file " + path;
-			throw new StepException(msg, e, FileLookupFailureReason.FileNotReadable);
+			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_READABLE);
 		}
-	}
-
-	/**
-	 * Performs the tree search in a recursive depth-first manner.
-	 *
-	 * @param node The node tree to search.
-	 * @return The textual form of the first matched field, or null if not matched.
-	 */
-	private String searchTree(JsonNode node, String fieldName) {
-		List<JsonNode> values = node.findValues(fieldName);
-		for (JsonNode value : values) {
-			if (value.isValueNode()) {
-				return value.asText();
-			} else {
-				String subTreeSearch = this.searchTree(value, fieldName);
-				if (subTreeSearch != null) {
-					return subTreeSearch;
-				}
-			}
-		}
-		return null;
 	}
 }
