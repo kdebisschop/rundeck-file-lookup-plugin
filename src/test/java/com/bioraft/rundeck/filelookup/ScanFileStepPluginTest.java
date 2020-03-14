@@ -16,7 +16,7 @@
 package com.bioraft.rundeck.filelookup;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.dtolabs.rundeck.core.execution.workflow.SharedOutputContext;
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException;
@@ -81,14 +81,12 @@ public class ScanFileStepPluginTest {
 	@Test(expected = StepException.class)
 	public void noFileThrowsException() throws StepException {
 		configuration.put("path", "nosuchfile");
-		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 		this.plugin.executeStep(context, configuration);
 	}
 
 	@Test
 	public void canRunWithoutMatch() throws StepException {
 		configuration.put("regex", "^\\s+com[.]example[.]label3: (.*)");
-		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 
 		this.plugin.executeStep(context, configuration);
 		verify(context, never()).getOutputContext();

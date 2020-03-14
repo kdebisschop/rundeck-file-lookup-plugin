@@ -16,7 +16,7 @@
 package com.bioraft.rundeck.filelookup;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.dtolabs.rundeck.core.common.INodeEntry;
 import com.dtolabs.rundeck.core.execution.workflow.SharedOutputContext;
@@ -81,7 +81,6 @@ public class JsonFindValueNodeStepPluginTest {
 	@Test(expected = StepException.class)
 	public void noFileThrowsException() throws StepException {
 		configuration.put("path", "nosuchfile");
-		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 		this.plugin.executeNodeStep(context, configuration, entry);
 	}
 
@@ -195,7 +194,6 @@ public class JsonFindValueNodeStepPluginTest {
 	@Test
 	public void notCalledOnNoMatch() throws StepException {
 		configuration.put("fieldName", "no_such_key");
-		when(context.getOutputContext()).thenReturn(sharedOutputContext);
 		this.plugin.executeNodeStep(context, configuration, entry);
 		verify(context, never()).getOutputContext();
 		verify(sharedOutputContext, never()).addOutput(anyString(), anyString(), anyString());
