@@ -16,12 +16,6 @@
 
 package com.bioraft.rundeck.filelookup;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import com.dtolabs.rundeck.core.common.INodeEntry;
 import com.dtolabs.rundeck.core.execution.workflow.steps.node.NodeStepException;
 import com.dtolabs.rundeck.core.plugins.Plugin;
@@ -33,6 +27,12 @@ import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Map;
+
+import static com.bioraft.rundeck.filelookup.FileLookupUtils.searchTree;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 /**
@@ -65,7 +65,7 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 	@PluginProperty(title = "Field Name", description = "Field name to lookup in JSON", required = true)
 	private String fieldName;
 
-	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = true)
+	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", defaultValue="false", required = true)
 	private boolean elevateToGlobal;
 
 	@Override
@@ -82,7 +82,7 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 			FileReader reader = new FileReader(path);
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode rootNode = objectMapper.readTree(reader);
-			String value = this.searchTree(rootNode, fieldName);
+			String value = searchTree(rootNode, fieldName);
 			if (value != null) {
 				FileLookupUtils.addOutput(context, group, name, value, elevateToGlobal);
 			}
@@ -95,26 +95,5 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 			String nodeName = node.getNodename();
 			throw new NodeStepException(msg, e, FileLookupFailureReason.FILE_NOT_READABLE, nodeName);
 		}
-	}
-
-	/**
-	 * Performs the tree search in a recursive depth-first manner.
-	 *
-	 * @param node The node tree to search.
-	 * @return The textual form of the first matched field, or null if not matched.
-	 */
-	private String searchTree(JsonNode node, String fieldName) {
-		List<JsonNode> values = node.findValues(fieldName);
-		for (JsonNode value : values) {
-			if (value.isValueNode()) {
-				return value.asText();
-			} else {
-				String subTreeSearch = this.searchTree(value, fieldName);
-				if (subTreeSearch != null) {
-					return subTreeSearch;
-				}
-			}
-		}
-		return null;
 	}
 }

@@ -18,6 +18,9 @@ package com.bioraft.rundeck.filelookup;
 import com.dtolabs.rundeck.core.Constants;
 import com.dtolabs.rundeck.core.dispatcher.ContextView;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import java.util.List;
 
 public class FileLookupUtils {
 
@@ -32,6 +35,27 @@ public class FileLookupUtils {
 			context.getOutputContext().addOutput(ContextView.global(), "export", groupName, value);
 			context.getLogger().log(Constants.DEBUG_LEVEL, "Elevating to global ${export." + groupName + "}.");
 		}
+	}
+
+	/**
+	 * Performs the tree search in a recursive depth-first manner.
+	 *
+	 * @param node The node tree to search.
+	 * @return The textual form of the first matched field, or null if not matched.
+	 */
+	static String searchTree(JsonNode node, String fieldName) {
+		List<JsonNode> values = node.findValues(fieldName);
+		for (JsonNode value : values) {
+			if (value.isValueNode()) {
+				return value.asText();
+			} else {
+				String subTreeSearch = searchTree(value, fieldName);
+				if (subTreeSearch != null) {
+					return subTreeSearch;
+				}
+			}
+		}
+		return null;
 	}
 
 }
