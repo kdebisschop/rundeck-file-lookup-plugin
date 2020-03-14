@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import static com.bioraft.rundeck.filelookup.Constants.*;
-import static com.bioraft.rundeck.filelookup.Constants.OPT_NAME_DESCRIPTION;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 /**
