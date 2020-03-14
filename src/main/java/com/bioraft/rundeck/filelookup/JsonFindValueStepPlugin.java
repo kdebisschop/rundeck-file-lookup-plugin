@@ -71,8 +71,7 @@ public class JsonFindValueStepPlugin implements StepPlugin {
 		group = configuration.getOrDefault("group", defaultString(group)).toString();
 		name = configuration.getOrDefault("name", defaultString(name)).toString();
 		fieldName = configuration.getOrDefault("fieldName", defaultString(fieldName)).toString();
-		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
-				.equals("true");
+		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", elevateToGlobal).toString().equals("true");
 
 		try {
 			(new FileLookupUtils(context)).scanJsonFile(path, fieldName, group, name, elevateToGlobal);
