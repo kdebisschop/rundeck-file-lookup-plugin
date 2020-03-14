@@ -118,10 +118,10 @@ public class ScanFileStepPlugin implements StepPlugin {
 			} while (true);
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
-			throw new StepException(msg, e, FileLookupFailureReason.FileNotFound);
+			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND);
 		} catch (IOException e) {
 			String msg = "Could not read file " + path;
-			throw new StepException(msg, e, FileLookupFailureReason.FileNotReadable);
+			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_READABLE);
 		}
 	}
 }

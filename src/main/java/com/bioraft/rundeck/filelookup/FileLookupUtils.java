@@ -21,6 +21,10 @@ import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 
 public class FileLookupUtils {
 
+	private FileLookupUtils() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	public static void addOutput(PluginStepContext context, String group, String name, String value, boolean elevate) {
 		context.getOutputContext().addOutput(group, name, value);
 		if (elevate) {

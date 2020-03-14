@@ -32,6 +32,8 @@ import com.dtolabs.rundeck.plugins.step.StepPlugin;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.apache.commons.lang.StringUtils.defaultString;
+
 /**
  * Workflow Step Plug-in to find value of first matching field name in JSON
  * file.
@@ -68,11 +70,11 @@ public class JsonFindValueStepPlugin implements StepPlugin {
 
 	@Override
 	public void executeStep(PluginStepContext context, Map<String, Object> configuration) throws StepException {
-		String path = configuration.getOrDefault("path", this.path).toString();
-		String group = configuration.getOrDefault("group", this.group).toString();
-		String name = configuration.getOrDefault("name", this.name).toString();
-		String fieldName = configuration.getOrDefault("fieldName", this.fieldName).toString();
-		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
+		path = configuration.getOrDefault("path", defaultString(path)).toString();
+		group = configuration.getOrDefault("group", defaultString(group)).toString();
+		name = configuration.getOrDefault("name", defaultString(name)).toString();
+		fieldName = configuration.getOrDefault("fieldName", defaultString(fieldName)).toString();
+		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
 				.equals("true");
 
 		try {
@@ -85,10 +87,10 @@ public class JsonFindValueStepPlugin implements StepPlugin {
 			}
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
-			throw new StepException(msg, e, FileLookupFailureReason.FileNotFound);
+			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND);
 		} catch (IOException e) {
 			String msg = "Could not read file " + path;
-			throw new StepException(msg, e, FileLookupFailureReason.FileNotReadable);
+			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_READABLE);
 		}
 	}
 

@@ -33,6 +33,8 @@ import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.apache.commons.lang.StringUtils.defaultString;
+
 /**
  * Node Step Plug-in to find value of first matching field name in JSON file.
  * 
@@ -63,17 +65,17 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 	@PluginProperty(title = "Field Name", description = "Field name to lookup in JSON", required = true)
 	private String fieldName;
 
-	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = false)
+	@PluginProperty(title = "Make global?", description = "Elevate this variable to global scope (default: false)", required = true)
 	private boolean elevateToGlobal;
 
 	@Override
 	public void executeNodeStep(final PluginStepContext context, final Map<String, Object> configuration,
 			final INodeEntry node) throws NodeStepException {
-		String path = configuration.getOrDefault("path", this.path).toString();
-		String group = configuration.getOrDefault("group", this.group).toString();
-		String name = configuration.getOrDefault("name", this.name).toString();
-		String fieldName = configuration.getOrDefault("fieldName", this.fieldName).toString();
-		boolean elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
+		path = configuration.getOrDefault("path", defaultString(path)).toString();
+		group = configuration.getOrDefault("group", defaultString(group)).toString();
+		name = configuration.getOrDefault("name", defaultString(name)).toString();
+		fieldName = configuration.getOrDefault("fieldName", defaultString(fieldName)).toString();
+		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
 				.equals("true");
 
 		try {
@@ -87,11 +89,11 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 		} catch (FileNotFoundException e) {
 			String msg = "Could not find file " + path;
 			String nodeName = node.getNodename();
-			throw new NodeStepException(msg, e, FileLookupFailureReason.FileNotFound, nodeName);
+			throw new NodeStepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND, nodeName);
 		} catch (IOException e) {
 			String msg = "Could not read file " + path;
 			String nodeName = node.getNodename();
-			throw new NodeStepException(msg, e, FileLookupFailureReason.FileNotReadable, nodeName);
+			throw new NodeStepException(msg, e, FileLookupFailureReason.FILE_NOT_READABLE, nodeName);
 		}
 	}
 

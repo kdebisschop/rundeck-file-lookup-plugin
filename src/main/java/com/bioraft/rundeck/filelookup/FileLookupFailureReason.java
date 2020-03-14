@@ -22,6 +22,6 @@ import com.dtolabs.rundeck.core.execution.workflow.steps.FailureReason;
  * @since 2019-12-23
  */
 public enum FileLookupFailureReason implements FailureReason {
-	FileNotFound,
-	FileNotReadable
+	FILE_NOT_FOUND,
+	FILE_NOT_READABLE
 }
