@@ -17,7 +17,6 @@ package com.bioraft.rundeck.filelookup;
 
 import com.dtolabs.rundeck.core.Constants;
 import com.dtolabs.rundeck.core.dispatcher.ContextView;
-import com.dtolabs.rundeck.core.execution.workflow.SharedOutputContext;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,13 +36,11 @@ import static com.dtolabs.rundeck.core.Constants.ERR_LEVEL;
 
 public class FileLookupUtils {
 
-	private PluginStepContext pluginStepContext;
+	private final PluginStepContext pluginStepContext;
 
 	private Map<String, String> map;
 
 	ObjectMapper objectMapper;
-
-	FileReader reader;
 
 	public FileLookupUtils(PluginStepContext context) {
 		this.pluginStepContext = context;
@@ -56,6 +53,8 @@ public class FileLookupUtils {
 
 	void scanJsonFile(String path, String fieldName, String group, String name, boolean elevateToGlobal)
 			throws IOException {
+
+		FileReader reader;
 
 		try {
 			reader = new FileReader(path);
@@ -158,11 +157,10 @@ public class FileLookupUtils {
 	}
 
 	private void addFieldToOutput(String group, String name, String value, boolean elevate) {
-		SharedOutputContext outputContext = pluginStepContext.getOutputContext();
-		outputContext.addOutput(group, name, value);
+		pluginStepContext.getOutputContext().addOutput(group, name, value);
 		if (elevate) {
 			String groupName = group + "." + name;
-			outputContext.addOutput(ContextView.global(), "export", groupName, value);
+			pluginStepContext.getOutputContext().addOutput(ContextView.global(), "export", groupName, value);
 			pluginStepContext.getLogger().log(Constants.DEBUG_LEVEL, "Elevating to global ${export." + groupName + "}.");
 		}
 	}

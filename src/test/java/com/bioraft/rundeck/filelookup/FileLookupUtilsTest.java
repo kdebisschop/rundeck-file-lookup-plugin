@@ -14,7 +14,6 @@ import java.io.Reader;
 import java.util.Objects;
 
 import static com.dtolabs.rundeck.core.Constants.ERR_LEVEL;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
