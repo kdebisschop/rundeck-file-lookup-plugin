@@ -86,7 +86,7 @@ public class ScanFileNodeStepPluginTest {
 
 	@Test(expected = StepException.class)
 	public void noFileThrowsException() throws StepException {
-		configuration.put("path", "nosuchfile");
+		configuration.put("path", "no_such_file");
 		this.plugin.executeNodeStep(context, configuration, entry);
 	}
 

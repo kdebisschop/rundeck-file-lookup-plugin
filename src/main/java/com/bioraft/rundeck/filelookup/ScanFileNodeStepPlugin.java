@@ -24,7 +24,6 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.step.NodeStepPlugin;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
@@ -78,10 +77,6 @@ public class ScanFileNodeStepPlugin implements NodeStepPlugin {
 
 		try {
 			new FileLookupUtils(context).scanPropertiesFile(path, group, name, regex, elevateToGlobal);
-		} catch (FileNotFoundException e) {
-			String msg = "Could not find file " + path;
-			String nodeName = node.getNodename();
-			throw new NodeStepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND, nodeName);
 		} catch (IOException e) {
 			String msg = "Could not read file " + path;
 			String nodeName = node.getNodename();

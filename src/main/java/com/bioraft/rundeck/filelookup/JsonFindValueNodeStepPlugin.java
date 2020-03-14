@@ -25,7 +25,6 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.step.NodeStepPlugin;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
@@ -72,13 +71,10 @@ public class JsonFindValueNodeStepPlugin implements NodeStepPlugin {
 		group = configuration.getOrDefault("group", defaultString(group)).toString();
 		name = configuration.getOrDefault("name", defaultString(name)).toString();
 		fieldName = configuration.getOrDefault("fieldName", defaultString(fieldName)).toString();
-		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", this.elevateToGlobal).toString()
-				.equals("true");
+		elevateToGlobal = configuration.getOrDefault("elevateToGlobal", elevateToGlobal).toString().equals("true");
 
 		try {
 			(new FileLookupUtils(context)).scanJsonFile(path, fieldName, group, name, elevateToGlobal);
-		} catch (FileNotFoundException e) {
-			throw new NodeStepException("Could not find file " + path, e, FileLookupFailureReason.FILE_NOT_FOUND, node.getNodename());
 		} catch (IOException e) {
 			throw new NodeStepException("Could not read/parse file " + path, e, FileLookupFailureReason.FILE_NOT_READABLE, node.getNodename());
 		}

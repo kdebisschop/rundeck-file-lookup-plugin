@@ -23,7 +23,6 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
 import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.dtolabs.rundeck.plugins.step.StepPlugin;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
@@ -76,9 +75,6 @@ public class ScanFileStepPlugin implements StepPlugin {
 
 		try {
 			new FileLookupUtils(context).scanPropertiesFile(path, group, name, regex, elevateToGlobal);
-		} catch (FileNotFoundException e) {
-			String msg = "Could not find file " + path;
-			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_FOUND);
 		} catch (IOException e) {
 			String msg = "Could not read file " + path;
 			throw new StepException(msg, e, FileLookupFailureReason.FILE_NOT_READABLE);

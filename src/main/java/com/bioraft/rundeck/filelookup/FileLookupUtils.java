@@ -102,10 +102,6 @@ public class FileLookupUtils {
 					return;
 				}
 			} while (true);
-		} catch (FileNotFoundException e) {
-			String message = "Could not find file '" + path + "'";
-			pluginStepContext.getLogger().log(ERR_LEVEL, message);
-			throw(e);
 		} catch (IOException e) {
 			pluginStepContext.getLogger().log(ERR_LEVEL, "Could not read file '" + path + "'");
 			throw(e);
